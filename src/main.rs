@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use std::io::Write;
 use txtimg::*;
 
 #[derive(Parser)]
@@ -20,6 +21,8 @@ enum Commands {
     M {
         #[arg(required = true)]
         image_path: String,
+        #[arg(short, long)]
+        output_path: Option<String>,
     },
     /// File to image
     F {
@@ -34,9 +37,21 @@ fn main() {
     let cli = Cli::parse();
     match cli.command {
         Commands::T { text, output_path } => text_to_image(&text, &output_path),
-        Commands::M { image_path } => {
+        Commands::M {
+            image_path,
+            output_path,
+        } => {
             let decompressed_text = image_to_text(&image_path);
-            println!("{}", decompressed_text);
+            match output_path {
+                None => {
+                    print!("{}", decompressed_text);
+                }
+                Some(output_path) => {
+                    let mut f = std::fs::File::create(output_path).expect("Unable to create file");
+                    f.write_all(decompressed_text.as_bytes())
+                        .expect("Unable to write file");
+                }
+            }
         }
         Commands::F {
             file_path,

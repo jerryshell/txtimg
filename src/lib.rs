@@ -53,8 +53,8 @@ pub fn image_to_text(image_path: &str) -> String {
     let img_bytes = img.as_bytes();
     let alignment = img_bytes.last().expect("Failed to get last byte");
 
-    decompress_text(&img_bytes[0..img_bytes.len() - 3 - *alignment as usize])
-        .expect("Decompression failed")
+    let data = &img_bytes[0..img_bytes.len() - 3 - *alignment as usize];
+    decompress_text(data).expect("Decompression failed")
 }
 
 #[cfg(test)]
